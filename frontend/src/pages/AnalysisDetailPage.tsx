@@ -23,14 +23,15 @@ export function AnalysisDetailPage() {
   const analysis = analysisQuery.data
 
   useEffect(() => {
-    if (!analysis?.original_image_url) return
+    const imagePath = analysis?.original_image_url
+    if (!imagePath) return
 
     let objectUrl: string | null = null
 
     async function loadImage() {
       try {
         const response = await apiClient.get(
-          `${API_BASE_URL}${analysis.original_image_url}`,
+          `${API_BASE_URL}${imagePath}`,
           { responseType: 'blob' },
         )
 
