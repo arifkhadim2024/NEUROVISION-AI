@@ -13,3 +13,5 @@ uploads/*
 !uploads/.gitkeep
 outputs/*
 !outputs/.gitkeep
+
+!ml_models/neurovision_efficientnet_b0.pth
