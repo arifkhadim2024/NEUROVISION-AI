@@ -13,14 +13,44 @@
     {
       "source": "/api/:path*",
       "destination": {
-        "type": "service",
         "service": "backend"
       }
     },
     {
-      "source": "/(.*)",
+      "source": "/register",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/upload",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/history",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/analysis/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/model",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/",
       "destination": {
-        "type": "service",
         "service": "frontend"
       }
     }
