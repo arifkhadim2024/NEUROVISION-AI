@@ -9,6 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
+
 class Settings(BaseSettings):
     app_name: str = "neurovision-backend"
     app_version: str = "1.0.0"
@@ -20,7 +21,9 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     output_dir: str = "outputs"
     allowed_origins: str = (
-        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175"
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:5174,http://127.0.0.1:5174,"
+        "http://localhost:5175,http://127.0.0.1:5175"
     )
     max_upload_size_mb: int = 10
     model_name: str = ""
@@ -34,29 +37,41 @@ class Settings(BaseSettings):
     allowed_image_extensions: set[str] = {"png", "jpg", "jpeg"}
 
     model_config = SettingsConfigDict(
-    env_file=str(BACKEND_DIR / ".env"),
-    env_file_encoding="utf-8",
-    extra="ignore",
-    case_sensitive=False,
-)
-    
+        env_file=str(BACKEND_DIR / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False,
+    )
 
     @property
     def upload_dir_path(self) -> Path:
+        # Vercel's deployed filesystem is read-only.
+        # /tmp is writable during the function execution.
+        if os.getenv("VERCEL"):
+            return Path("/tmp/uploads")
         return Path(self.upload_dir)
 
     @property
     def output_dir_path(self) -> Path:
+        # Vercel's deployed filesystem is read-only.
+        # /tmp is writable during the function execution.
+        if os.getenv("VERCEL"):
+            return Path("/tmp/outputs")
         return Path(self.output_dir)
-
-
-# NOTE: .env values are comma-separated strings, not JSON arrays. Convert them here
-# so the backend accepts the same ALLOWED_ORIGINS format used in the project docs.
 
 
 settings = Settings()
 
 if isinstance(settings.allowed_origins, str):
-    settings.allowed_origins = [origin.strip() for origin in settings.allowed_origins.split(",") if origin.strip()]
+    settings.allowed_origins = [
+        origin.strip()
+        for origin in settings.allowed_origins.split(",")
+        if origin.strip()
+    ]
+
 if isinstance(settings.model_classes, str):
-    settings.model_classes = [clazz.strip() for clazz in settings.model_classes.split(",") if clazz.strip()]
+    settings.model_classes = [
+        clazz.strip()
+        for clazz in settings.model_classes.split(",")
+        if clazz.strip()
+    ]
