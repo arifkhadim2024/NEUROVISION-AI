@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
@@ -21,7 +22,11 @@ class AuthService:
             hashed_password=get_password_hash(password),
         )
         db.add(user)
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError as exc:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists") from exc
         db.refresh(user)
         return user
 

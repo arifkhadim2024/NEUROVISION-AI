@@ -7,6 +7,8 @@ from typing import List
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+
 
 class Settings(BaseSettings):
     app_name: str = "neurovision-backend"
@@ -32,7 +34,11 @@ class Settings(BaseSettings):
     validation_metrics: dict = {}
     allowed_image_extensions: set[str] = {"png", "jpg", "jpeg"}
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=BACKEND_DIR / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     @property
     def upload_dir_path(self) -> Path:
