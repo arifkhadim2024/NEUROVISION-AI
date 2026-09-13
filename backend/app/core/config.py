@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     jwt_secret_key: str = Field(default="change-me-in-production")
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
-    model_path: str = ""
+    model_path: str = str(BACKEND_DIR / "ml_models" / "neurovision_efficientnet_b0.pth")
     upload_dir: str = "uploads"
     output_dir: str = "outputs"
     allowed_origins: str = (
