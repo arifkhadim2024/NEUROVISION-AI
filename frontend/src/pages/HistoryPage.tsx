@@ -34,7 +34,7 @@ export function HistoryPage() {
       {historyQuery.isError ? <div className="page-panel"><p>Unable to load history.</p></div> : null}
 
       {!historyQuery.isLoading && !historyQuery.isError && historyQuery.data ? (
-        historyQuery.data.items.length > 0 ? (
+        Array.isArray(historyQuery.data.items) && historyQuery.data.items.length > 0 ? (
           <div className="history-list">
             {historyQuery.data.items.map((analysis) => (
               <Link key={analysis.id} to={`/app/analysis/${analysis.id}`} className="glass-card history-item">

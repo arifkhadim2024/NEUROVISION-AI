@@ -52,7 +52,7 @@ export function DashboardPage() {
       : 0.965
   const formattedConfidence = (rawConfidence <= 1 ? rawConfidence * 100 : rawConfidence).toFixed(1)
 
-  const rawActivity = activityQuery.data && activityQuery.data.length > 0 ? activityQuery.data : []
+  const rawActivity = Array.isArray(activityQuery.data) ? activityQuery.data : []
   // Ensure we have last 7 days representation
   const activity =
     rawActivity.length > 0
@@ -66,8 +66,8 @@ export function DashboardPage() {
           }
         })
 
-  const distribution = distributionQuery.data ?? []
-  const maxCount = Math.max(1, ...activity.map((item) => item.count))
+  const distribution = Array.isArray(distributionQuery.data) ? distributionQuery.data : []
+  const maxCount = Math.max(1, ...activity.map((item) => item.count || 0))
 
   return (
     <div className="page-shell">
