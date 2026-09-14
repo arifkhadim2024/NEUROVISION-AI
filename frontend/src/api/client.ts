@@ -9,7 +9,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('neurovision_token')
 
-  if (token) {
+  if (token && token !== 'demo-token') {
     config.headers.Authorization = `Bearer ${token}`
   }
 
@@ -20,12 +20,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('neurovision_token')
-      if (typeof window !== 'undefined') {
-        const path = window.location.pathname
-        if (path !== '/login' && path !== '/register' && path !== '/') {
-          window.location.href = '/login'
-        }
+      const token = localStorage.getItem('neurovision_token')
+      if (token && token !== 'demo-token') {
+        localStorage.removeItem('neurovision_token')
       }
     }
     return Promise.reject(error)
