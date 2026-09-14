@@ -151,15 +151,15 @@ async def create_analysis(
         return response
 
     except Exception as exc:
-        # Log the REAL error to Vercel
-        logging.exception("ANALYSIS FAILED: %s", exc)
+       logging.exception("ANALYSIS FAILED: %s", exc)
+    print(f"ANALYSIS FAILED: {type(exc).__name__}: {exc}", flush=True)
 
-        analysis.status = "failed"
-        analysis.error_message = str(exc)
+    analysis.status = "failed"
+    analysis.error_message = str(exc)
 
-        db.commit()
+    db.commit()
 
-        raise HTTPException(
+    raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Analysis failed",
         ) from exc
