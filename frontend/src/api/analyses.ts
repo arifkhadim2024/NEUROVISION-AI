@@ -3,7 +3,7 @@ import type { AnalysisDetail, AnalysisListResponse } from '../types/api'
 import {
   deleteLocalAnalysis,
   getLocalAnalyses,
-  getLocalAnalysisById,
+  getLocalAnalysisDetailAsync,
   processLocalScan,
 } from '../utils/localAnalysis'
 
@@ -141,9 +141,9 @@ export async function listAnalyses(params?: {
 }
 
 export async function getAnalysisById(analysisId: string): Promise<AnalysisDetail> {
-  // If it's a local scan ID, resolve instantly from local storage
+  // If it's a local scan ID, resolve instantly from memory / IndexedDB
   if (analysisId.startsWith('scan-')) {
-    const local = getLocalAnalysisById(analysisId)
+    const local = await getLocalAnalysisDetailAsync(analysisId)
     if (local) return local
   }
 
@@ -151,7 +151,7 @@ export async function getAnalysisById(analysisId: string): Promise<AnalysisDetai
     const response = await apiClient.get<AnalysisDetail>(`/api/analyses/${analysisId}`)
     return response.data
   } catch {
-    const local = getLocalAnalysisById(analysisId)
+    const local = await getLocalAnalysisDetailAsync(analysisId)
     if (local) return local
     throw new Error('Analysis not found')
   }
