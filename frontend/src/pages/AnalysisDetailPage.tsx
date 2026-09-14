@@ -132,17 +132,20 @@ export function AnalysisDetailPage() {
     )
   }
 
-  const rawConf = analysis.prediction?.confidence
-  const confidence = typeof rawConf === 'number' ? (rawConf <= 1 ? rawConf * 100 : rawConf) : 95.0
+  const rawConf = analysis?.prediction?.confidence
+  const confidence =
+    typeof rawConf === 'number' && !isNaN(rawConf)
+      ? (rawConf <= 1 ? rawConf * 100 : rawConf)
+      : 95.0
 
   const displayedImage =
     activeTab === 'overlay'
-      ? overlayUrl || analysis.overlay_url || originalUrl || analysis.original_image_url
+      ? overlayUrl || analysis?.overlay_url || originalUrl || analysis?.original_image_url
       : activeTab === 'heatmap'
-      ? heatmapUrl || analysis.heatmap_url || originalUrl || analysis.original_image_url
-      : originalUrl || analysis.original_image_url
+      ? heatmapUrl || analysis?.heatmap_url || originalUrl || analysis?.original_image_url
+      : originalUrl || analysis?.original_image_url
 
-  const probabilities = (analysis.predictions || []) as Array<{
+  const probabilities = (analysis?.predictions || []) as Array<{
     label: string
     probability: number
   }>
@@ -219,8 +222,8 @@ export function AnalysisDetailPage() {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {probabilities.map((item, idx) => {
-                  const probPercent =
-                    item.probability <= 1 ? item.probability * 100 : item.probability
+                  const rawP = typeof item?.probability === 'number' && !isNaN(item.probability) ? item.probability : 0
+                  const probPercent = rawP <= 1 ? rawP * 100 : rawP
                   const isTop = item.label === analysis.prediction?.label
                   return (
                     <div key={idx} style={{ fontSize: '0.85rem' }}>

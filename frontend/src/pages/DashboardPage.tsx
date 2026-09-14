@@ -44,6 +44,14 @@ export function DashboardPage() {
     model_version: '1.0.0 (EfficientNet-B0)',
   }
 
+  const rawTotal = typeof stats?.total_analyses === 'number' ? stats.total_analyses : 0
+  const rawWeek = typeof stats?.analyses_this_week === 'number' ? stats.analyses_this_week : 0
+  const rawConfidence =
+    typeof stats?.average_confidence === 'number' && !isNaN(stats.average_confidence)
+      ? stats.average_confidence
+      : 0.965
+  const formattedConfidence = (rawConfidence <= 1 ? rawConfidence * 100 : rawConfidence).toFixed(1)
+
   const rawActivity = activityQuery.data && activityQuery.data.length > 0 ? activityQuery.data : []
   // Ensure we have last 7 days representation
   const activity =
@@ -54,7 +62,7 @@ export function DashboardPage() {
           d.setDate(d.getDate() - (6 - i))
           return {
             date: d.toISOString().split('T')[0],
-            count: i === 6 ? Math.max(1, stats.total_analyses) : 0,
+            count: i === 6 ? Math.max(1, rawTotal) : 0,
           }
         })
 
@@ -80,7 +88,7 @@ export function DashboardPage() {
           </div>
           <div>
             <p>Total analyses</p>
-            <h3>{stats.total_analyses}</h3>
+            <h3>{rawTotal}</h3>
           </div>
         </div>
 
@@ -90,7 +98,7 @@ export function DashboardPage() {
           </div>
           <div>
             <p>This week</p>
-            <h3>{stats.analyses_this_week}</h3>
+            <h3>{rawWeek}</h3>
           </div>
         </div>
 
@@ -100,13 +108,7 @@ export function DashboardPage() {
           </div>
           <div>
             <p>Avg confidence</p>
-            <h3>
-              {(stats.average_confidence <= 1
-                ? stats.average_confidence * 100
-                : stats.average_confidence
-              ).toFixed(1)}
-              %
-            </h3>
+            <h3>{formattedConfidence}%</h3>
           </div>
         </div>
 
@@ -116,7 +118,7 @@ export function DashboardPage() {
           </div>
           <div>
             <p>Model version</p>
-            <h3 style={{ fontSize: '1.05rem' }}>{stats.model_version || 'EfficientNet-B0'}</h3>
+            <h3 style={{ fontSize: '1.05rem' }}>{stats?.model_version || '1.0.0 (EfficientNet-B0)'}</h3>
           </div>
         </div>
       </section>
