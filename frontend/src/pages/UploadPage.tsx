@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import { apiClient } from '../api/client'
+import { createAnalysis } from '../api/analyses'
 
 export function UploadPage() {
   const navigate = useNavigate()
@@ -31,8 +31,8 @@ export function UploadPage() {
       if (scanType) form.append('scan_type', scanType)
       if (notes) form.append('notes', notes)
 
-      const response = await apiClient.post('/api/analyses', form)
-      navigate(`/app/analysis/${response.data.id}`)
+      const result = await createAnalysis(form)
+      navigate(`/app/analysis/${result.id}`)
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Upload failed. Please try again.')
     } finally {

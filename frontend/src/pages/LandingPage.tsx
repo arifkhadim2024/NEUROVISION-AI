@@ -27,10 +27,10 @@ export function LandingPage() {
             secure workflow built for modern care teams.
           </p>
           <div className="hero-actions">
-            <Link to="/register" className="button button-primary large">
+            <Link to="/app/upload" className="button button-primary large">
               Start analysis <ArrowRight size={18} />
             </Link>
-            <Link to="/login" className="button button-secondary large">View dashboard</Link>
+            <Link to="/app" className="button button-secondary large">View dashboard</Link>
           </div>
           <ul className="hero-points">
             <li><ShieldCheck size={16} /> HIPAA-ready workflow design</li>
