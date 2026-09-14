@@ -3,34 +3,28 @@ import { Activity, ArrowUpRight, BrainCircuit, CalendarRange, Gauge, ShieldCheck
 import { Link } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
-import { apiClient } from '../api/client'
-import type { DashboardActivityItem, DashboardDistributionItem, DashboardStats } from '../types/api'
+import {
+  getDashboardActivity,
+  getDashboardDistribution,
+  getDashboardStats,
+} from '../api/dashboard'
 
 const palette = ['#7c3aed', '#06b6d4', '#22c55e', '#f59e0b', '#f43f5e']
 
 export function DashboardPage() {
   const statsQuery = useQuery({
     queryKey: ['dashboard-stats'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<DashboardStats>('/api/dashboard/stats')
-      return data
-    },
+    queryFn: getDashboardStats,
   })
 
   const activityQuery = useQuery({
     queryKey: ['dashboard-activity'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<DashboardActivityItem[]>('/api/dashboard/activity')
-      return data
-    },
+    queryFn: getDashboardActivity,
   })
 
   const distributionQuery = useQuery({
     queryKey: ['dashboard-distribution'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<DashboardDistributionItem[]>('/api/dashboard/distribution')
-      return data
-    },
+    queryFn: getDashboardDistribution,
   })
 
   if (statsQuery.isLoading || activityQuery.isLoading || distributionQuery.isLoading) {
