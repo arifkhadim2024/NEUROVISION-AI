@@ -1,1 +1,7 @@
 Dataset/Brain tumor dataset.zip
+.DS_Store
+**/.DS_Store
+*.db
+backend/test.db
+backend/test_debug.db
+.venv/

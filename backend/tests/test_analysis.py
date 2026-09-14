@@ -1,13 +1,4 @@
-from pathlib import Path
-
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-client = TestClient(app)
-
-
-def create_user_and_auth(email: str = "alice@example.com"):
+def create_user_and_auth(client, email: str = "alice@example.com"):
     client.post(
         "/api/auth/register",
         json={"full_name": "Alice Example", "email": email, "password": "securepass123"},
@@ -19,13 +10,13 @@ def create_user_and_auth(email: str = "alice@example.com"):
     return login.json()["access_token"]
 
 
-def test_unauthorized_analysis_request():
+def test_unauthorized_analysis_request(client):
     response = client.get("/api/analyses")
     assert response.status_code == 401
 
 
-def test_invalid_file_upload():
-    token = create_user_and_auth("invalid-upload@example.com")
+def test_invalid_file_upload(client):
+    token = create_user_and_auth(client, "invalid-upload@example.com")
     response = client.post(
         "/api/analyses",
         headers={"Authorization": f"Bearer {token}"},
@@ -34,8 +25,8 @@ def test_invalid_file_upload():
     assert response.status_code in {400, 413, 422}
 
 
-def test_analysis_ownership_and_model_info():
-    token = create_user_and_auth("activity@example.com")
+def test_analysis_ownership_and_model_info(client):
+    token = create_user_and_auth(client, "activity@example.com")
     model_response = client.get("/api/model/info")
     assert model_response.status_code == 200
     assert "model_available" in model_response.json()

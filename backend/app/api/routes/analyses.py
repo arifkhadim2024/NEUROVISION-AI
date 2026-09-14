@@ -57,6 +57,9 @@ async def create_analysis(
 
     analysis = Analysis(
         user_id=current_user.id,
+        patient_id=patient_id,
+        scan_type=scan_type,
+        notes=notes,
         original_filename=file.filename or "upload",
         stored_image_path=original_path,
         status="processing",
@@ -102,10 +105,7 @@ async def create_analysis(
         analysis.heatmap_path = gradcam_result["heatmap_path"]
         analysis.overlay_path = gradcam_result["overlay_path"]
 
-        # 7. Get model metadata
-        model_meta = get_model_metadata()
-
-        # 8. Save prediction information
+        # 7. Save prediction information
         analysis.prediction_label = prediction["label"]
         analysis.prediction_confidence = prediction["confidence"]
         analysis.prediction_data = {
@@ -123,7 +123,12 @@ async def create_analysis(
         db.commit()
         db.refresh(analysis)
 
-        # 9. Return complete analysis response
+        # 8. Return complete analysis response
+        created_at_str = (
+            analysis.created_at.isoformat()
+            if hasattr(analysis.created_at, "isoformat")
+            else str(analysis.created_at)
+        )
         response = AnalysisResponse(
             id=analysis.id,
             status=analysis.status,
@@ -144,7 +149,7 @@ async def create_analysis(
             model_name=analysis.model_name,
             model_version=analysis.model_version,
             processing_time_ms=analysis.processing_time_ms,
-            created_at=analysis.created_at.isoformat(),
+            created_at=created_at_str,
             note=notes,
         )
 
@@ -220,7 +225,11 @@ def list_analyses(
                 "prediction_label": item.prediction_label,
                 "prediction_confidence": item.prediction_confidence,
                 "status": item.status,
-                "created_at": item.created_at.isoformat(),
+                "created_at": (
+                    item.created_at.isoformat()
+                    if hasattr(item.created_at, "isoformat")
+                    else str(item.created_at)
+                ),
                 "model_name": item.model_name,
                 "model_version": item.model_version,
             }
@@ -285,13 +294,17 @@ def get_analysis(
         "model_name": analysis.model_name,
         "model_version": analysis.model_version,
         "processing_time_ms": analysis.processing_time_ms,
-        "created_at": analysis.created_at.isoformat(),
+        "created_at": (
+            analysis.created_at.isoformat()
+            if hasattr(analysis.created_at, "isoformat")
+            else str(analysis.created_at)
+        ),
         "original_filename": analysis.original_filename,
         "stored_image_path": analysis.stored_image_path,
         "error_message": analysis.error_message,
-        "patient_id": None,
-        "scan_type": None,
-        "notes": None,
+        "patient_id": analysis.patient_id,
+        "scan_type": analysis.scan_type,
+        "notes": analysis.notes,
     }
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -30,18 +31,32 @@ def load_model() -> NeuroVisionClassifier | None:
         return None
 
 
+def _get_effective_metrics() -> dict[str, Any]:
+    metrics = dict(settings.validation_metrics) if settings.validation_metrics else {}
+    if not metrics and settings.model_path:
+        metrics_file = Path(settings.model_path).parent / "neurovision_efficientnet_b0_metrics.json"
+        if metrics_file.exists():
+            try:
+                import json
+                with open(metrics_file, "r") as f:
+                    metrics = json.load(f)
+            except Exception:
+                pass
+    return metrics
+
+
 def get_model_metadata() -> dict[str, Any]:
     model = load_model()
     return {
-        "name": settings.model_name or "pending",
-        "version": settings.model_version or "pending",
+        "name": settings.model_name or "NeuroVision EfficientNet-B0",
+        "version": settings.model_version or "1.0.0",
         "architecture": settings.model_architecture,
         "framework": "PyTorch",
         "input_size": [224, 224],
         "classes": settings.model_classes or [],
         "num_classes": settings.num_classes,
         "training_dataset": settings.training_dataset or None,
-        "validation_metrics": settings.validation_metrics,
+        "validation_metrics": _get_effective_metrics(),
         "model_available": model is not None,
     }
 
@@ -53,15 +68,15 @@ def get_model() -> NeuroVisionClassifier | None:
 def get_model_info() -> dict[str, Any]:
     model = load_model()
     return {
-        "name": settings.model_name or None,
-        "version": settings.model_version or None,
+        "name": settings.model_name or "NeuroVision EfficientNet-B0",
+        "version": settings.model_version or "1.0.0",
         "architecture": settings.model_architecture,
         "framework": "PyTorch",
         "input_size": [224, 224],
         "classes": settings.model_classes or [],
         "num_classes": settings.num_classes,
         "training_dataset": settings.training_dataset or None,
-        "validation_metrics": settings.validation_metrics,
+        "validation_metrics": _get_effective_metrics(),
         "model_available": model is not None,
     }
 

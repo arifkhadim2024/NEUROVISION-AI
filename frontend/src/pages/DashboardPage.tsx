@@ -70,7 +70,11 @@ export function DashboardPage() {
           <div className="stat-icon orange"><Gauge size={18} /></div>
           <div>
             <p>Avg confidence</p>
-            <h3>{stats ? `${stats.average_confidence.toFixed(1)}%` : '0.0%'}</h3>
+            <h3>
+              {stats
+                ? `${(stats.average_confidence <= 1 ? stats.average_confidence * 100 : stats.average_confidence).toFixed(1)}%`
+                : '0.0%'}
+            </h3>
           </div>
         </div>
         <div className="glass-card stat-card">

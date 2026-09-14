@@ -21,7 +21,12 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('neurovision_token')
-      window.location.href = '/login'
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname
+        if (path !== '/login' && path !== '/register' && path !== '/') {
+          window.location.href = '/login'
+        }
+      }
     }
     return Promise.reject(error)
   },

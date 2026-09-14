@@ -21,8 +21,15 @@ export function RegisterPage() {
     try {
       await register(fullName, email, password)
       navigate('/app')
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to create account.')
+    } catch (submitError: any) {
+      const serverDetail = submitError?.response?.data?.detail
+      setError(
+        typeof serverDetail === 'string'
+          ? serverDetail
+          : submitError instanceof Error
+          ? submitError.message
+          : 'Unable to create account.'
+      )
     } finally {
       setLoading(false)
     }

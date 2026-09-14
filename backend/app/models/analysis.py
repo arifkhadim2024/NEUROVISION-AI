@@ -14,6 +14,9 @@ class Analysis(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    patient_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    scan_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     stored_image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)

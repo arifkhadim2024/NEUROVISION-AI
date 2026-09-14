@@ -1,44 +1,12 @@
 {
-  "services": {
-    "frontend": {
-      "root": "frontend/",
-      "framework": "vite"
-    },
-    "backend": {
-      "root": "backend/",
-      "entrypoint": "app.main:app"
-    }
-  },
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": {
-        "service": "backend"
-      }
-    },
-    {
-      "source": "/login",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/register",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/app/:path*",
-      "destination": {
-        "service": "frontend"
-      }
+      "source": "/api/(.*)",
+      "destination": "https://neurovision-ai-backend.vercel.app/api/$1"
     },
     {
       "source": "/(.*)",
-      "destination": {
-        "service": "frontend"
-      }
+      "destination": "/index.html"
     }
   ]
 }

@@ -26,7 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   })
 
   const refreshUser = useCallback(async () => {
-    if (!token) {
+    const currentToken = localStorage.getItem('neurovision_token')
+    if (!currentToken) {
       setUser(null)
       return null
     }
@@ -35,33 +36,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentUser = await getCurrentUser()
       setUser(currentUser)
       return currentUser
-    } catch (error) {
+    } catch {
       setToken(null)
       setUser(null)
       localStorage.removeItem('neurovision_token')
       return null
     }
-  }, [token])
+  }, [])
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('neurovision_token', token)
-      void refreshUser()
-      return
+    const savedToken = localStorage.getItem('neurovision_token')
+    if (savedToken) {
+      getCurrentUser()
+        .then((profile) => setUser(profile))
+        .catch(() => {
+          setToken(null)
+          setUser(null)
+          localStorage.removeItem('neurovision_token')
+        })
     }
-
-    localStorage.removeItem('neurovision_token')
-    setUser(null)
-  }, [token, refreshUser])
+  }, [])
 
   const login = useCallback(async (email: string, password: string) => {
     const tokenResponse = await loginUser({ email, password })
-    setToken(tokenResponse.access_token)
-    const profile = await refreshUser()
-    if (!profile) {
-      throw new Error('Unable to load user profile')
-    }
-  }, [refreshUser])
+    const accessToken = tokenResponse.access_token
+    localStorage.setItem('neurovision_token', accessToken)
+    setToken(accessToken)
+    const profile = await getCurrentUser()
+    setUser(profile)
+  }, [])
 
   const register = useCallback(async (fullName: string, email: string, password: string) => {
     const result = await registerUser({ full_name: fullName, email, password })
@@ -87,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     refreshUser,
-  }), [login, logout, refreshUser, token, user])
+  }), [user, token, login, register, logout, refreshUser])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
