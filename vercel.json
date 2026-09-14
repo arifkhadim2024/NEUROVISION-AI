@@ -1,8 +1,10 @@
 {
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://neurovision-ai-backend.vercel.app/api/$1"
+      "destination": "/api/index.py"
     },
     {
       "source": "/(.*)",

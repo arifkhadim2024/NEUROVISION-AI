@@ -46,19 +46,38 @@ class Settings(BaseSettings):
 
     @property
     def upload_dir_path(self) -> Path:
-        # Vercel's deployed filesystem is read-only.
-        # /tmp is writable during the function execution.
         if os.getenv("VERCEL"):
             return Path("/tmp/uploads")
         return Path(self.upload_dir)
 
     @property
     def output_dir_path(self) -> Path:
-        # Vercel's deployed filesystem is read-only.
-        # /tmp is writable during the function execution.
         if os.getenv("VERCEL"):
             return Path("/tmp/outputs")
         return Path(self.output_dir)
+
+    @property
+    def effective_database_url(self) -> str:
+        if os.getenv("DATABASE_URL"):
+            return os.getenv("DATABASE_URL")
+        if os.getenv("VERCEL") and self.database_url.startswith("sqlite:///."):
+            return "sqlite:////tmp/test.db"
+        return self.database_url
+
+    @property
+    def effective_model_path(self) -> str:
+        if self.model_path and Path(self.model_path).exists():
+            return self.model_path
+        candidates = [
+            BACKEND_DIR / "ml_models" / "neurovision_efficientnet_b0.pth",
+            Path(__file__).resolve().parents[3] / "backend" / "ml_models" / "neurovision_efficientnet_b0.pth",
+            Path("backend/ml_models/neurovision_efficientnet_b0.pth"),
+            Path("ml_models/neurovision_efficientnet_b0.pth"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+        return self.model_path
 
 
 settings = Settings()
