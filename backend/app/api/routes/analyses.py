@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import logging
 import os
 import time
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    UploadFile,
+    status,
+)
 from fastapi.responses import FileResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -24,6 +34,7 @@ from app.ml.inference import predict
 from app.ml.model_loader import get_model, get_model_metadata
 from app.ml.preprocessing import preprocess_image
 
+
 router = APIRouter()
 
 
@@ -42,7 +53,6 @@ async def create_analysis(
     current_user=Depends(get_current_user),
 ):
     StorageService.ensure_directories()
-
     original_path = StorageService.save_upload(file)
 
     analysis = Analysis(
@@ -61,23 +71,23 @@ async def create_analysis(
     start = time.time()
 
     try:
-        # 1. Run real model inference
+        # 1. Run model inference
         prediction = predict(original_path)
 
         # 2. Load the trained model
         model = get_model()
 
-        # 3. Find the class index of the predicted class
+        # 3. Find the predicted class index
         class_index = next(
             index
             for index, item in enumerate(prediction["probabilities"])
             if item["label"] == prediction["label"]
         )
 
-        # 4. Preprocess the image for Grad-CAM
+        # 4. Preprocess image for Grad-CAM
         input_tensor = preprocess_image(original_path)
 
-        # 5. Generate Grad-CAM heatmap + overlay
+        # 5. Generate Grad-CAM
         gradcam = GradCAM(model)
 
         gradcam_result = gradcam.generate(
@@ -101,11 +111,14 @@ async def create_analysis(
         analysis.prediction_data = {
             "probabilities": prediction["probabilities"]
         }
+
         analysis.model_name = settings.model_name
         analysis.model_version = settings.model_version
-       
+
         analysis.status = "completed"
-        analysis.processing_time_ms = int((time.time() - start) * 1000)
+        analysis.processing_time_ms = int(
+            (time.time() - start) * 1000
+        )
 
         db.commit()
         db.refresh(analysis)
@@ -119,9 +132,15 @@ async def create_analysis(
                 "confidence": analysis.prediction_confidence or 0.0,
             },
             predictions=prediction["probabilities"],
-            original_image_url=f"/api/analyses/media/analyses/{analysis.id}/original",
-            heatmap_url=f"/api/analyses/media/analyses/{analysis.id}/heatmap",
-            overlay_url=f"/api/analyses/media/analyses/{analysis.id}/overlay",
+            original_image_url=(
+                f"/api/analyses/media/analyses/{analysis.id}/original"
+            ),
+            heatmap_url=(
+                f"/api/analyses/media/analyses/{analysis.id}/heatmap"
+            ),
+            overlay_url=(
+                f"/api/analyses/media/analyses/{analysis.id}/overlay"
+            ),
             model_name=analysis.model_name,
             model_version=analysis.model_version,
             processing_time_ms=analysis.processing_time_ms,
@@ -132,6 +151,9 @@ async def create_analysis(
         return response
 
     except Exception as exc:
+        # Log the REAL error to Vercel
+        logging.exception("ANALYSIS FAILED: %s", exc)
+
         analysis.status = "failed"
         analysis.error_message = str(exc)
 
@@ -255,9 +277,15 @@ def get_analysis(
             if analysis.prediction_data
             else []
         ),
-        "original_image_url": f"/api/analyses/media/analyses/{analysis.id}/original",
-        "heatmap_url": f"/api/analyses/media/analyses/{analysis.id}/heatmap",
-        "overlay_url": f"/api/analyses/media/analyses/{analysis.id}/overlay",
+        "original_image_url": (
+            f"/api/analyses/media/analyses/{analysis.id}/original"
+        ),
+        "heatmap_url": (
+            f"/api/analyses/media/analyses/{analysis.id}/heatmap"
+        ),
+        "overlay_url": (
+            f"/api/analyses/media/analyses/{analysis.id}/overlay"
+        ),
         "model_name": analysis.model_name,
         "model_version": analysis.model_version,
         "processing_time_ms": analysis.processing_time_ms,
