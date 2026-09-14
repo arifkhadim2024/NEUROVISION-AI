@@ -17,6 +17,24 @@
       }
     },
     {
+      "source": "/login",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/register",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/app/:path*",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
       "source": "/(.*)",
       "destination": {
         "service": "frontend"

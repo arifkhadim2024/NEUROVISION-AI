@@ -23,7 +23,8 @@ class Settings(BaseSettings):
     allowed_origins: str = (
         "http://localhost:5173,http://127.0.0.1:5173,"
         "http://localhost:5174,http://127.0.0.1:5174,"
-        "http://localhost:5175,http://127.0.0.1:5175"
+        "http://localhost:5175,http://127.0.0.1:5175,"
+        "https://neurovision-ai-cyan.vercel.app"
     )
     max_upload_size_mb: int = 10
     model_name: str = ""

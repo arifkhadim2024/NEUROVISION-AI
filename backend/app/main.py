@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import analyses, auth, dashboard, health, model
 from app.core.config import settings
+from app.core.database import Base, engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="NEUROVISION AI Backend",
