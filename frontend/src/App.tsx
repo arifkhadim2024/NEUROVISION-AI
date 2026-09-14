@@ -3,6 +3,7 @@ import { BrainCircuit, History, LayoutDashboard, LogOut, Settings, Upload } from
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { AnalysisDetailPage } from './pages/AnalysisDetailPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -140,13 +141,15 @@ function AppShell() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppShell />
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary fallbackTitle="NeuroVision Application Error">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppShell />
+          </BrowserRouter>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   )
 }
 
